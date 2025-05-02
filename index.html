@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quizlet Clone with Flashcard Creator - by Naman</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .flip-card {
+        perspective: 1000px;
+      }
+      .flip-inner {
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+      }
+      .flip-card:hover .flip-inner {
+        transform: rotateY(180deg);
+      }
+      .flip-front,
+      .flip-back {
+        backface-visibility: hidden;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-radius: 1rem;
+      }
+      .flip-back {
+        transform: rotateY(180deg);
+        background-color: #fbbf24;
+      }
+
+      .flip-card {
+    perspective: 1000px;
+  }
+  .flip-inner {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .flip-card:hover .flip-inner {
+    transform: rotateY(180deg);
+  }
+  .flip-front, .flip-back {
+    backface-visibility: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+  }
+  .flip-front {
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+  .flip-back {
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    transform: rotateY(180deg);
+  }
+    </style>
+  </head>
+  <body class="bg-white text-gray-800">
+    <!-- Navbar -->
+    <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Quizlet</h1>
+      <nav class="space-x-4">
+        <a href="https://quizlet.com/latest" class="hover:underline">Home</a>
+        <a href="#flashcards" class="hover:underline">Flashcards</a>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="text-center py-16 bg-blue-100">
+      <h2 class="text-4xl font-bold mb-4">Learn with Flashcards</h2>
+      <p class="text-lg text-gray-700">Create and review flashcards to study efficiently.</p>
+    </section>
+
+    <!-- Flashcard Creator -->
+    <section id="flashcards" class="p-6 max-w-3xl mx-auto">
+      <h3 class="text-2xl font-semibold mb-4">Create Your Flashcard</h3>
+      <form id="cardForm" class="space-y-4">
+        <input type="text" id="question" placeholder="Enter question" class="w-full p-2 border rounded" required />
+        <input type="text" id="answer" placeholder="Enter answer" class="w-full p-2 border rounded" required />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Flashcard</button>
+      </form>
+
+      <div id="cardContainer" class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    </section>
+
+    <script>
+      const form = document.getElementById("cardForm");
+      const container = document.getElementById("cardContainer");
+
+      const loadCards = () => {
+  const cards = JSON.parse(localStorage.getItem("flashcards") || "[]");
+  container.innerHTML = "";
+
+  cards.forEach(({ question, answer }, index) => {
+    const cardWrapper = document.createElement("div");
+    cardWrapper.className = "relative group";
+
+    const card = document.createElement("div");
+    card.className = "flip-card w-full h-48";
+    card.innerHTML = `
+      <div class="flip-inner rounded-xl">
+        <div class="flip-front shadow-lg">${question}</div>
+        <div class="flip-back shadow-lg">${answer}</div>
+      </div>
+    `;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.className =
+      "absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 w-8 h-8 opacity-0 group-hover:opacity-100 transition duration-300";
+    deleteBtn.title = "Delete Flashcard";
+
+    deleteBtn.onclick = () => {
+      cards.splice(index, 1);
+      localStorage.setItem("flashcards", JSON.stringify(cards));
+      loadCards();
+    };
+
+    cardWrapper.appendChild(card);
+    cardWrapper.appendChild(deleteBtn);
+    container.appendChild(cardWrapper);
+  });
+};
+
+
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const question = document.getElementById("question").value;
+        const answer = document.getElementById("answer").value;
+        const cards = JSON.parse(localStorage.getItem("flashcards") || "[]");
+        cards.push({ question, answer });
+        localStorage.setItem("flashcards", JSON.stringify(cards));
+        form.reset();
+        loadCards();
+      });
+
+      loadCards();
+    </script>
+  </body>
+</html>
